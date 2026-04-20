@@ -28,9 +28,7 @@ WITH (
 );
 
 SELECT COUNT (*)  FROM bronze.crm_cust_info 
-
----------------------------------------------
-
+===================================================
 
 BULK INSERT bronze.crm_prd_info
 FROM 'C:\Users\Jasmi\Downloads\prd_info.csv'
@@ -40,5 +38,39 @@ WITH (
 	TABLOCK
 
 );
+======================================================
+BULK INSERT bronze.crm_sales_details
+FROM 'C:\Users\Jasmi\Downloads\sales_details.csv'
+WITH ( 
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
 
+);
+
+========================================================
+
+
+BULK INSERT Bronze.erp_cust_az12
+FROM 'C:\Users\Jasmi\Downloads\CUST_AZ12.csv'
+WITH ( 
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+
+);
+
+============================================================
+
+
+
+BULK INSERT Bronze.erp_loc_a101
+FROM 'C:\Users\Jasmi\Downloads\LOC_A101.csv'
+WITH ( 
+	FIRSTROW = 2,
+	FIELDTERMINATOR = ',',
+	TABLOCK
+
+);
+===================================================================
 
