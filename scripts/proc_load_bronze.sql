@@ -14,9 +14,12 @@ Parameters:
 */
 
 EXEC Bronze.load_broze
-
+	
 CREATE OR ALTER PROCEDURE Bronze.load_broze 
 AS BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME;
+	BEGIN TRY
+
 		PRINT  '===================================';
 		PRINT  'Loading bronze Layer';
 		PRINT '=====================================';
@@ -25,6 +28,7 @@ AS BEGIN
 		PRINT 'Loading CRM Tables';
 		PRINT '--------------------------------------';
 
+		SET @start_time = GETDATE();
 		PRINT ' >> Truncating Table: Bronze.crm_cust_info';
 		TRUNCATE TABLE Bronze.crm_cust_info
 		PRINT ' >> Inserting Data Into Table: Bronze.crm_cust_info';
@@ -35,6 +39,8 @@ AS BEGIN
 			FIELDTERMINATOR = ',',
 			TABLOCK
 		);
+		SET @end_time = GETDATE();
+		PRINT '>> loading duration:' + CAST(DATEDIFF (second, @start_time, @end_time) AS NVARCHAR) +'seconds';
 
 		PRINT ' >> Truncating Table: bronze.crm_prd_info';
 		TRUNCATE TABLE Bronze.crm_prd_info
@@ -47,6 +53,7 @@ AS BEGIN
 			TABLOCK
 		);
 		
+		SET @start_time = GETDATE();
 		PRINT ' >> Truncating Table: bronze.crm_prd_info';
 		TRUNCATE TABLE Bronze.crm_sales_details
 		PRINT ' >> Inserting Data Into Table: Bronze.crm_sales_details';
@@ -57,6 +64,10 @@ AS BEGIN
 			FIELDTERMINATOR = ',',
 			TABLOCK
 		);
+
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 		
 		PRINT '--------------------------------------';
 		PRINT 'Loading ERP Tables';
@@ -73,6 +84,11 @@ AS BEGIN
 			TABLOCK
 
 		);
+
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
+
 		
 		PRINT ' >> Truncating Table: bronze.erp_loc_a101';
 		TRUNCATE TABLE Bronze.erp_loc_a101
@@ -85,7 +101,10 @@ AS BEGIN
 			TABLOCK
 
 		);
-		
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
+
 		PRINT ' >> Truncating Table: Bronze.erp_px_cat_g1v2';
 		TRUNCATE TABLE Bronze.erp_px_cat_g1v2
 		PRINT ' >> Inserting Data Into Table: PX_CAT_G1V2.csv';
@@ -95,5 +114,23 @@ AS BEGIN
 			FIRSTROW = 2,
 			FIELDTERMINATOR = ',',
 			TABLOCK
-);
-END
+	);
+	SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
+
+		SET @batch_end_time = GETDATE();
+		PRINT '=========================================='
+		PRINT 'Loading Bronze Layer is Completed';
+        PRINT '   - Total Load Duration: ' + CAST(DATEDIFF(SECOND, @batch_start_time, @batch_end_time) AS NVARCHAR) + 'seconds';
+		PRINT '=========================================='
+
+	END TRY
+	BEGIN CATCH
+	PRINT '=========================================='
+		PRINT 'ERROR OCCURED DURING LOADING BRONZE LAYER'
+		PRINT 'Error Message' + ERROR_MESSAGE();
+		PRINT 'Error Message' + CAST (ERROR_NUMBER() AS NVARCHAR);
+		PRINT 'Error Message' + CAST (ERROR_STATE() AS NVARCHAR);
+		PRINT '=========================================='
+	END CATCH
